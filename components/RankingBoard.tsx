@@ -58,7 +58,7 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
         <div className="space-y-6 animate-fade-in">
             <button 
                 onClick={() => setSelectedPlayer(null)}
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-pitch-600 dark:hover:text-pitch-400 font-medium transition-colors"
+                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-pitch-600 dark:hover:text-pitch-400 font-medium transition-colors p-2 -ml-2 rounded"
             >
                 <ChevronLeft size={20} /> Voltar ao Ranking
             </button>
@@ -67,7 +67,7 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 flex-wrap">
                             {selectedPlayer.name}
                             <span className={`text-xs px-2 py-1 rounded-full ${
                                 selectedPlayer.type === 'Mensalista' 
@@ -77,7 +77,7 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
                                 {selectedPlayer.type}
                             </span>
                         </h2>
-                        <div className="flex gap-1 mt-2">
+                        <div className="flex gap-1 mt-2 flex-wrap">
                              {selectedPlayer.positions.map(p => (
                                 <span key={p} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
                                     {p}
@@ -85,14 +85,14 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
                              ))}
                         </div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center pl-4">
                         <div className="text-4xl font-bold text-pitch-600 dark:text-pitch-400">{selectedPlayer.stats.points}</div>
                         <div className="text-xs text-gray-500 uppercase tracking-wider">Pontos</div>
                     </div>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg text-center">
                         <div className="text-xl font-bold text-gray-800 dark:text-gray-200">{selectedPlayer.stats.matches}</div>
                         <div className="text-xs text-gray-500">Partidas</div>
@@ -180,7 +180,7 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
        <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
         <button
             onClick={() => setActiveView('ranking')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all touch-manipulation ${
                 activeView === 'ranking' 
                 ? 'bg-white dark:bg-gray-700 shadow text-pitch-700 dark:text-white' 
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
@@ -190,13 +190,13 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
         </button>
         <button
             onClick={() => setActiveView('history')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-all touch-manipulation ${
                 activeView === 'history' 
                 ? 'bg-white dark:bg-gray-700 shadow text-pitch-700 dark:text-white' 
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
             }`}
         >
-            <History size={16} /> Histórico Geral
+            <History size={16} /> Histórico
         </button>
       </div>
 
@@ -207,78 +207,78 @@ export const RankingBoard: React.FC<Props> = ({ players, history }) => {
                 <h2 className="text-lg font-bold text-yellow-800 dark:text-yellow-500">Classificação</h2>
             </div>
             
-            <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 uppercase font-semibold text-xs">
-                <tr>
-                    <th className="px-4 py-3 w-12 text-center">#</th>
-                    <th className="px-4 py-3">Jogador</th>
-                    <th className="px-4 py-3 text-center">Pts</th>
-                    <th className="px-4 py-3 text-center" title="Partidas Jogadas">J</th>
-                    <th className="px-4 py-3 text-center" title="Assiduidade (Presença)">%</th>
-                    <th className="px-4 py-3 text-center hidden sm:table-cell">V</th>
-                    <th className="px-4 py-3 text-center hidden sm:table-cell">E</th>
-                    <th className="px-4 py-3 text-center hidden sm:table-cell">D</th>
-                </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                {sortedPlayers.map((player, index) => {
-                    let rankIcon = null;
-                    if (index === 0) rankIcon = <Medal size={16} className="text-yellow-500" />;
-                    else if (index === 1) rankIcon = <Medal size={16} className="text-gray-400" />;
-                    else if (index === 2) rankIcon = <Medal size={16} className="text-amber-700" />;
-
-                    const attendancePct = totalGlobalMatches > 0
-                        ? Math.round((player.stats.matches / totalGlobalMatches) * 100)
-                        : 0;
-
-                    return (
-                    <tr 
-                        key={player.id} 
-                        onClick={() => setSelectedPlayer(player)}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer group"
-                    >
-                        <td className="px-4 py-3 text-center font-bold text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center justify-center gap-1">
-                            {index + 1}
-                            {rankIcon}
-                        </div>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
-                            <div className="flex flex-col">
-                                <span className="group-hover:text-pitch-600 transition-colors">{player.name}</span>
-                                <span className="text-[10px] text-gray-400 font-normal">{player.type}</span>
-                            </div>
-                        </td>
-                        <td className="px-4 py-3 text-center font-bold text-pitch-600 dark:text-pitch-400 text-base">
-                        {player.stats.points}
-                        </td>
-                        <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">{player.stats.matches}</td>
-                        <td className="px-4 py-3 text-center text-blue-600 dark:text-blue-400 font-medium text-xs">
-                            {attendancePct}%
-                        </td>
-                        <td className="px-4 py-3 text-center text-green-600 dark:text-green-400 hidden sm:table-cell">{player.stats.wins}</td>
-                        <td className="px-4 py-3 text-center text-gray-500 dark:text-gray-400 hidden sm:table-cell">{player.stats.draws}</td>
-                        <td className="px-4 py-3 text-center text-red-500 dark:text-red-400 hidden sm:table-cell">{player.stats.losses}</td>
-                    </tr>
-                    );
-                })}
-                {sortedPlayers.length === 0 && (
+            <div className="overflow-x-auto w-full touch-pan-x">
+                <table className="w-full text-left text-sm min-w-[350px]">
+                    <thead className="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 uppercase font-semibold text-xs">
                     <tr>
-                    <td colSpan={8} className="p-8 text-center text-gray-500">Nenhum dado registrado ainda.</td>
+                        <th className="px-3 py-3 w-10 text-center">#</th>
+                        <th className="px-3 py-3">Jogador</th>
+                        <th className="px-3 py-3 text-center">Pts</th>
+                        <th className="px-3 py-3 text-center" title="Partidas Jogadas">J</th>
+                        <th className="px-3 py-3 text-center" title="Assiduidade (Presença)">%</th>
+                        <th className="px-3 py-3 text-center hidden sm:table-cell">V</th>
+                        <th className="px-3 py-3 text-center hidden sm:table-cell">E</th>
+                        <th className="px-3 py-3 text-center hidden sm:table-cell">D</th>
                     </tr>
-                )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                    {sortedPlayers.map((player, index) => {
+                        let rankIcon = null;
+                        if (index === 0) rankIcon = <Medal size={16} className="text-yellow-500" />;
+                        else if (index === 1) rankIcon = <Medal size={16} className="text-gray-400" />;
+                        else if (index === 2) rankIcon = <Medal size={16} className="text-amber-700" />;
+
+                        const attendancePct = totalGlobalMatches > 0
+                            ? Math.round((player.stats.matches / totalGlobalMatches) * 100)
+                            : 0;
+
+                        return (
+                        <tr 
+                            key={player.id} 
+                            onClick={() => setSelectedPlayer(player)}
+                            className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer group active:bg-gray-100 dark:active:bg-gray-700"
+                        >
+                            <td className="px-3 py-3 text-center font-bold text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center justify-center gap-1">
+                                {index + 1}
+                                {rankIcon}
+                            </div>
+                            </td>
+                            <td className="px-3 py-3 font-medium text-gray-900 dark:text-white max-w-[120px] sm:max-w-none">
+                                <div className="flex flex-col">
+                                    <span className="group-hover:text-pitch-600 transition-colors truncate">{player.name}</span>
+                                    <span className="text-[10px] text-gray-400 font-normal">{player.type}</span>
+                                </div>
+                            </td>
+                            <td className="px-3 py-3 text-center font-bold text-pitch-600 dark:text-pitch-400 text-base">
+                            {player.stats.points}
+                            </td>
+                            <td className="px-3 py-3 text-center text-gray-600 dark:text-gray-400">{player.stats.matches}</td>
+                            <td className="px-3 py-3 text-center text-blue-600 dark:text-blue-400 font-medium text-xs">
+                                {attendancePct}%
+                            </td>
+                            <td className="px-3 py-3 text-center text-green-600 dark:text-green-400 hidden sm:table-cell">{player.stats.wins}</td>
+                            <td className="px-3 py-3 text-center text-gray-500 dark:text-gray-400 hidden sm:table-cell">{player.stats.draws}</td>
+                            <td className="px-3 py-3 text-center text-red-500 dark:text-red-400 hidden sm:table-cell">{player.stats.losses}</td>
+                        </tr>
+                        );
+                    })}
+                    {sortedPlayers.length === 0 && (
+                        <tr>
+                        <td colSpan={8} className="p-8 text-center text-gray-500">Nenhum dado registrado ainda.</td>
+                        </tr>
+                    )}
+                    </tbody>
+                </table>
+            </div>
             <div className="p-2 text-center text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 border-t dark:border-gray-700">
                 Toque em um jogador para ver estatísticas detalhadas
-            </div>
             </div>
         </div>
       ) : (
         <div className="space-y-4 animate-fade-in">
             {sortedHistory.map(match => (
-                <div key={match.id} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div key={match.id} className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100 dark:border-gray-700">
                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">

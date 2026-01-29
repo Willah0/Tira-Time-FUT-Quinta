@@ -77,7 +77,7 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className={`p-6 rounded-xl shadow-sm border transition-colors ${
+      <div className={`p-4 sm:p-6 rounded-xl shadow-sm border transition-colors ${
         editingId 
           ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' 
           : 'bg-white border-gray-100 dark:bg-gray-800 dark:border-gray-700'
@@ -96,7 +96,7 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-pitch-500"
+              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-pitch-500 text-base"
               placeholder="Ex: Neymar Jr"
             />
           </div>
@@ -109,7 +109,7 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
                   key={pos}
                   type="button"
                   onClick={() => togglePosition(pos)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors flex items-center gap-2 ${
+                  className={`px-4 py-2.5 sm:py-2 sm:px-3 rounded-full text-sm font-medium border transition-colors flex items-center gap-2 touch-manipulation ${
                     positions.includes(pos)
                       ? 'bg-pitch-100 border-pitch-500 text-pitch-800 dark:bg-pitch-900 dark:text-pitch-100'
                       : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300'
@@ -125,38 +125,38 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo</label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer dark:text-gray-200">
+              <label className="flex items-center gap-2 cursor-pointer dark:text-gray-200 p-2 -ml-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                 <input
                   type="radio"
                   checked={type === 'Mensalista'}
                   onChange={() => setType('Mensalista')}
-                  className="text-pitch-600 focus:ring-pitch-500"
+                  className="w-5 h-5 text-pitch-600 focus:ring-pitch-500"
                 />
-                Mensalista
+                <span className="text-base">Mensalista</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer dark:text-gray-200">
+              <label className="flex items-center gap-2 cursor-pointer dark:text-gray-200 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
                 <input
                   type="radio"
                   checked={type === 'Diarista'}
                   onChange={() => setType('Diarista')}
-                  className="text-pitch-600 focus:ring-pitch-500"
+                  className="w-5 h-5 text-pitch-600 focus:ring-pitch-500"
                 />
-                Diarista
+                <span className="text-base">Diarista</span>
               </label>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-2 flex-col sm:flex-row">
             <button
               type="submit"
               disabled={!name || positions.length === 0}
-              className={`flex-1 font-bold py-2 px-4 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 ${
+              className={`w-full font-bold py-3 px-4 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 touch-manipulation ${
                 editingId 
                   ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                   : 'bg-pitch-600 hover:bg-pitch-700 text-white'
               }`}
             >
-              {editingId ? <Save size={18} /> : <UserPlus size={18} />}
+              {editingId ? <Save size={20} /> : <UserPlus size={20} />}
               {editingId ? 'Salvar Alterações' : 'Cadastrar'}
             </button>
             
@@ -164,9 +164,9 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+                className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 touch-manipulation"
               >
-                <X size={18} /> Cancelar
+                <X size={20} /> Cancelar
               </button>
             )}
           </div>
@@ -184,7 +184,7 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
             }`}>
               <div>
                 <div className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                  {player.name}
+                  <span className="text-base">{player.name}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                     player.type === 'Mensalista' 
                       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
@@ -205,22 +205,22 @@ export const PlayerRegistration: React.FC<Props> = ({ players, onAddPlayer, onUp
                 </div>
               </div>
               
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <button
                     onClick={() => handleEdit(player)}
-                    className="text-gray-400 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    className="text-gray-400 hover:text-blue-500 p-3 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors touch-manipulation"
                     title="Editar"
                     disabled={editingId !== null && editingId !== player.id}
                 >
-                    <Pencil size={18} />
+                    <Pencil size={20} />
                 </button>
                 <button
                     onClick={() => onDeletePlayer(player.id)}
-                    className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="text-gray-400 hover:text-red-500 p-3 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors touch-manipulation"
                     title="Excluir"
                     disabled={editingId !== null}
                 >
-                    <Trash2 size={18} />
+                    <Trash2 size={20} />
                 </button>
               </div>
             </li>

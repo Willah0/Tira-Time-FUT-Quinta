@@ -108,7 +108,6 @@ export const MatchManager: React.FC<Props> = ({
   };
 
   // --- SUBSTITUTION PRIORITY LOGIC ---
-  // Calculates who should leave based on the user's rules
   const substitutionSuggestions = useMemo(() => {
     if (!isPlaying) return new Map<string, { score: number, reason: string }>();
 
@@ -131,7 +130,6 @@ export const MatchManager: React.FC<Props> = ({
             }
 
             // 1. Prioridade Alta: Diarista
-            // Diaristas tem preferência para SAIR (dar lugar aos mensalistas)
             if (player.type === 'Diarista') {
                 score += 10000;
                 reasons.push('Diarista');
@@ -148,14 +146,12 @@ export const MatchManager: React.FC<Props> = ({
                          reasons.push('Saiu último jogo (Protegido)');
                      } else {
                          // Se for Diarista, não ganha proteção.
-                         // Ele mantém a pontuação alta da regra 1.
                      }
                 } else {
                     const wasPresentInLastMatch = lastMatch.teamA.some(p => p.id === player.id) || 
                                                   lastMatch.teamB.some(p => p.id === player.id);
                     
                     if (wasPresentInLastMatch) {
-                         // Se jogou a anterior completo (não saiu), tem prioridade para rodar agora
                          score += 2000;
                          reasons.push('Jogou anterior completo');
                     }
@@ -181,7 +177,6 @@ export const MatchManager: React.FC<Props> = ({
             };
         });
 
-    // Sort by score descending (Maior score = Maior prioridade para SAIR)
     suggestions.sort((a, b) => b.score - a.score);
 
     const result = new Map<string, { score: number, reason: string }>();
@@ -480,9 +475,9 @@ export const MatchManager: React.FC<Props> = ({
         : selectedReservePlayer?.id === player.id;
     
     if (isSelected) {
-        return "bg-pitch-100 border-pitch-500 text-pitch-900 ring-2 ring-pitch-500 dark:bg-pitch-900 dark:text-white dark:border-pitch-400";
+        return "bg-pitch-100 border-pitch-500 text-pitch-900 ring-2 ring-pitch-500 dark:bg-pitch-900 dark:text-white dark:border-pitch-400 z-10 scale-[1.02] shadow-md";
     }
-    return "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-pitch-300";
+    return "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-600 hover:border-pitch-300 active:scale-[0.98]";
   };
 
   // Helper to render player item
@@ -501,9 +496,6 @@ export const MatchManager: React.FC<Props> = ({
           
           const indexInQueue = queue.findIndex(s => s.id === player.id);
           
-          // Only show "Should Leave" if score is positive (meaning they are a candidate for leaving)
-          // AND they are within the top X candidates.
-          // GKs will have massive negative scores, so indexInQueue will be very last.
           if (indexInQueue !== -1 && indexInQueue < reservesCount && subData && subData.score > -5000) {
              shouldLeave = true;
              subRank = indexInQueue + 1;
@@ -517,35 +509,35 @@ export const MatchManager: React.FC<Props> = ({
                 if (isStarter) setSelectedFieldPlayer(selectedFieldPlayer?.id === player.id ? null : player);
                 else setSelectedReservePlayer(selectedReservePlayer?.id === player.id ? null : player);
             }}
-            className={`relative flex justify-between items-center p-2 rounded-lg border cursor-pointer transition-all mb-1 ${getPlayerStyle(player, isStarter || false)} ${shouldLeave ? 'border-l-4 border-l-red-500 bg-red-50/50 dark:bg-red-900/10' : ''}`}
+            className={`relative flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all mb-2 touch-manipulation ${getPlayerStyle(player, isStarter || false)} ${shouldLeave ? 'border-l-4 border-l-red-500 bg-red-50/50 dark:bg-red-900/10' : ''}`}
         >
             <div className="flex items-center gap-2 overflow-hidden w-full">
                 <div className="flex flex-col truncate w-full">
                     <div className="flex justify-between items-center w-full">
                          <div className="flex items-center gap-1 truncate">
-                             <span className="font-medium text-sm truncate">{player.name}</span>
+                             <span className="font-medium text-base truncate">{player.name}</span>
                              {player.positions.includes('Goleiro') && (
-                                <ShieldCheck size={12} className="text-yellow-500" title="Goleiro" />
+                                <ShieldCheck size={14} className="text-yellow-500" title="Goleiro" />
                              )}
-                             {/* Protected Icon - Só aparece se a razão incluir "Protegido", que agora só ocorre para Mensalistas */}
+                             {/* Protected Icon */}
                              {subData && subData.reason.includes('Saiu último jogo') && (
-                                 <ShieldCheck size={12} className="text-blue-500" title="Protegido (Saiu Último Jogo)" />
+                                 <ShieldCheck size={14} className="text-blue-500" title="Protegido (Saiu Último Jogo)" />
                              )}
                          </div>
                          
                          {/* Visual Badge for Suggested Substitution */}
                          {shouldLeave && subData && (
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded text-[9px] font-bold border border-red-200 dark:border-red-800 ml-2 animate-pulse shrink-0">
-                                <ArrowRightFromLine size={10} />
-                                <span>{subRank}º a sair</span>
+                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded text-[10px] font-bold border border-red-200 dark:border-red-800 ml-2 animate-pulse shrink-0">
+                                <ArrowRightFromLine size={12} />
+                                <span>{subRank}º sair</span>
                             </div>
                          )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-0.5">
-                        <div className="flex items-center gap-1 text-[9px]">
+                    <div className="flex items-center justify-between mt-1">
+                        <div className="flex items-center gap-1 text-[10px]">
                             {player.positions.map(p => (
-                                <span key={p} className="bg-gray-100 dark:bg-gray-600 px-1 rounded text-gray-500 dark:text-gray-300">
+                                <span key={p} className="bg-gray-100 dark:bg-gray-600 px-1.5 py-0.5 rounded text-gray-500 dark:text-gray-300">
                                     {p.slice(0, 3)}
                                 </span>
                             ))}
@@ -553,7 +545,7 @@ export const MatchManager: React.FC<Props> = ({
                         
                         {/* Show Reason - Enhanced Logic */}
                         {isStarter && subData && (shouldLeave || subData.reason.includes('Protegido')) && (
-                             <span className={`text-[8px] italic text-right truncate max-w-[100px] ${
+                             <span className={`text-[9px] italic text-right truncate max-w-[100px] ${
                                  subData.score < 0 
                                     ? 'text-blue-600 dark:text-blue-400 font-medium' 
                                     : 'text-red-500/80 dark:text-red-400/80'
@@ -566,7 +558,7 @@ export const MatchManager: React.FC<Props> = ({
             </div>
              
              {!isStarter && (
-                 <span className="ml-2 text-[9px] bg-yellow-100 text-yellow-800 px-1 rounded whitespace-nowrap">Reserva</span>
+                 <span className="ml-2 text-[10px] bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded whitespace-nowrap">Reserva</span>
              )}
         </li>
       );
@@ -585,20 +577,20 @@ export const MatchManager: React.FC<Props> = ({
              </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col gap-4 justify-center">
             <button
               onClick={shuffleTeams}
               disabled={attendance.length < 2}
-              className="flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg transition-colors disabled:opacity-50 touch-manipulation"
             >
               <HistoryIcon size={20} className="text-yellow-400" />
-              Sorteio Completo (Ordem Chegada)
+              Sorteio (Ordem Chegada)
             </button>
             
             <button
               onClick={handleAiSort}
               disabled={attendance.length < 2 || isGenerating}
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg disabled:opacity-50"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-lg transition-all shadow-lg disabled:opacity-50 touch-manipulation"
             >
               {isGenerating ? (
                 <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
@@ -620,66 +612,62 @@ export const MatchManager: React.FC<Props> = ({
   const displayReasoning = currentMatch?.reasoning || aiReasoning;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
        {displayReasoning && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-200">
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-100 dark:border-blue-800 text-xs sm:text-sm text-blue-800 dark:text-blue-200">
           <strong className="flex items-center gap-1 mb-1"><Sparkles size={14} /> Info:</strong>
           {displayReasoning}
         </div>
       )}
 
       {/* Reserves / Substitutions Control Panel */}
-       <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-             <h5 className="text-sm font-bold uppercase text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <ArrowRightLeft size={16} /> Painel de Substituição
+       <div className="bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10 safe-top-pad">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+             <h5 className="text-sm font-bold uppercase text-gray-700 dark:text-gray-300 flex items-center gap-2 self-start sm:self-center">
+                <ArrowRightLeft size={16} /> Substituição
              </h5>
              
-             <div className="flex items-center gap-2">
+             <div className="flex w-full sm:w-auto items-center gap-2">
                  {(teamAReserves.length > 0 || teamBReserves.length > 0) && (
                      <button
                         onClick={() => setIsHalftimeModalOpen(true)}
-                        className="text-xs flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1.5 px-3 rounded-md shadow-md transition-colors"
+                        className="flex-1 sm:flex-none text-xs flex justify-center items-center gap-1 bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 text-white font-bold py-2.5 sm:py-2 px-3 rounded-lg shadow-md transition-colors touch-manipulation"
                      >
-                        <Timer size={14} /> Intervalo (Auto)
+                        <Timer size={16} /> Intervalo (Auto)
                      </button>
                  )}
                  {selectedFieldPlayer && selectedReservePlayer && (
                      <button 
                         onClick={handleSwapPlayers}
-                        className="text-xs bg-pitch-600 hover:bg-pitch-700 text-white font-bold py-1.5 px-4 rounded-full animate-pulse shadow-md"
+                        className="flex-1 sm:flex-none text-xs bg-pitch-600 hover:bg-pitch-700 active:bg-pitch-800 text-white font-bold py-2.5 sm:py-2 px-4 rounded-lg animate-pulse shadow-md touch-manipulation"
                      >
-                        Troca Manual
+                        Trocar Selecionados
                      </button>
                  )}
              </div>
           </div>
-          
-          <div className="text-xs text-gray-500 text-center">
-             Use o botão <strong>Intervalo</strong> para trocar automaticamente os titulares prioritários pelos reservas.
-          </div>
        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Team A */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Time A</h3>
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-3">
                 <button 
                   onClick={() => updateScore('A', -1)} 
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-900/30 dark:text-red-400 transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-600 dark:bg-red-900/30 dark:text-red-400 transition-colors touch-manipulation"
                   title="Remover Gol"
                 >
-                  <Minus size={18} />
+                  <Minus size={20} />
                 </button>
-                <span className="text-3xl font-bold font-mono dark:text-white min-w-[40px] text-center">{scoreA}</span>
+                <span className="text-4xl sm:text-3xl font-bold font-mono dark:text-white min-w-[40px] text-center">{scoreA}</span>
                 <button 
                   onClick={() => updateScore('A', 1)} 
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 text-green-600 dark:bg-green-900/30 dark:text-green-400 transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 active:bg-green-300 text-green-600 dark:bg-green-900/30 dark:text-green-400 transition-colors touch-manipulation"
                   title="Adicionar Gol"
                 >
-                  <Plus size={18} />
+                  <Plus size={20} />
                 </button>
              </div>
           </div>
@@ -694,7 +682,7 @@ export const MatchManager: React.FC<Props> = ({
              {teamAReserves.length > 0 && (
                 <div>
                     <h4 className="text-xs font-bold text-yellow-600 uppercase mb-2 border-b border-yellow-200 pb-1 pt-2 flex justify-between">
-                        <span>Banco de Reservas</span>
+                        <span>Banco</span>
                         <span className="text-[9px] bg-yellow-100 px-1.5 rounded-full flex items-center">{teamAReserves.length}</span>
                     </h4>
                     <ul className="space-y-1 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg p-2">
@@ -706,24 +694,24 @@ export const MatchManager: React.FC<Props> = ({
         </div>
 
         {/* Team B */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Time B</h3>
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-3">
                 <button 
                   onClick={() => updateScore('B', -1)} 
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-900/30 dark:text-red-400 transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-600 dark:bg-red-900/30 dark:text-red-400 transition-colors touch-manipulation"
                   title="Remover Gol"
                 >
-                  <Minus size={18} />
+                  <Minus size={20} />
                 </button>
-                <span className="text-3xl font-bold font-mono dark:text-white min-w-[40px] text-center">{scoreB}</span>
+                <span className="text-4xl sm:text-3xl font-bold font-mono dark:text-white min-w-[40px] text-center">{scoreB}</span>
                 <button 
                   onClick={() => updateScore('B', 1)} 
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 text-green-600 dark:bg-green-900/30 dark:text-green-400 transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 active:bg-green-300 text-green-600 dark:bg-green-900/30 dark:text-green-400 transition-colors touch-manipulation"
                   title="Adicionar Gol"
                 >
-                  <Plus size={18} />
+                  <Plus size={20} />
                 </button>
              </div>
           </div>
@@ -738,7 +726,7 @@ export const MatchManager: React.FC<Props> = ({
              {teamBReserves.length > 0 && (
                 <div>
                     <h4 className="text-xs font-bold text-yellow-600 uppercase mb-2 border-b border-yellow-200 pb-1 pt-2 flex justify-between">
-                        <span>Banco de Reservas</span>
+                        <span>Banco</span>
                         <span className="text-[9px] bg-yellow-100 px-1.5 rounded-full flex items-center">{teamBReserves.length}</span>
                     </h4>
                     <ul className="space-y-1 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg p-2">
@@ -750,12 +738,12 @@ export const MatchManager: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex justify-center pt-6">
+      <div className="flex justify-center pt-4 sm:pt-6 pb-4">
         <button
           type="button"
           onClick={handleFinishClick}
           disabled={isFinishing}
-          className="flex items-center gap-2 bg-pitch-600 hover:bg-pitch-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-pitch-600 hover:bg-pitch-700 active:bg-pitch-800 text-white font-bold py-3.5 sm:py-3 px-8 rounded-lg shadow-lg transition-colors disabled:opacity-50 disabled:cursor-wait touch-manipulation"
         >
           {isFinishing ? (
              <>
